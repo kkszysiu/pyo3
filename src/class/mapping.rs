@@ -106,15 +106,18 @@ pub trait PyMappingReversedProtocol<'p>: PyMappingProtocol<'p> {
 
 #[doc(hidden)]
 pub trait PyMappingProtocolImpl {
-    fn tp_as_mapping() -> Option<ffi::PyMappingMethods> {
+    fn tp_as_mapping() -> Option<ffi::PyMappingMethods>;
+    fn methods() -> Vec<PyMethodDef>;
+}
+
+impl<T> PyMappingProtocolImpl for T {
+    default fn tp_as_mapping() -> Option<ffi::PyMappingMethods> {
         None
     }
-    fn methods() -> Vec<PyMethodDef> {
+    default fn methods() -> Vec<PyMethodDef> {
         Vec::new()
     }
 }
-
-impl<T> PyMappingProtocolImpl for T {}
 
 impl<'p, T> PyMappingProtocolImpl for T
 where
@@ -154,12 +157,14 @@ where
 }
 
 trait PyMappingLenProtocolImpl {
-    fn mp_length() -> Option<ffi::lenfunc> {
+    fn mp_length() -> Option<ffi::lenfunc>;
+}
+
+impl<'p, T> PyMappingLenProtocolImpl for T where T: PyMappingProtocol<'p> {
+    default fn mp_length() -> Option<ffi::lenfunc> {
         None
     }
 }
-
-impl<'p, T> PyMappingLenProtocolImpl for T where T: PyMappingProtocol<'p> {}
 
 impl<T> PyMappingLenProtocolImpl for T
 where
@@ -172,12 +177,14 @@ where
 }
 
 trait PyMappingGetItemProtocolImpl {
-    fn mp_subscript() -> Option<ffi::binaryfunc> {
+    fn mp_subscript() -> Option<ffi::binaryfunc>;
+}
+
+impl<'p, T> PyMappingGetItemProtocolImpl for T where T: PyMappingProtocol<'p> {
+    default fn mp_subscript() -> Option<ffi::binaryfunc> {
         None
     }
 }
-
-impl<'p, T> PyMappingGetItemProtocolImpl for T where T: PyMappingProtocol<'p> {}
 
 impl<T> PyMappingGetItemProtocolImpl for T
 where
@@ -195,12 +202,14 @@ where
 }
 
 trait PyMappingSetItemProtocolImpl {
-    fn mp_ass_subscript() -> Option<ffi::objobjargproc> {
+    fn mp_ass_subscript() -> Option<ffi::objobjargproc>;
+}
+
+impl<'p, T> PyMappingSetItemProtocolImpl for T where T: PyMappingProtocol<'p> {
+    default fn mp_ass_subscript() -> Option<ffi::objobjargproc> {
         None
     }
 }
-
-impl<'p, T> PyMappingSetItemProtocolImpl for T where T: PyMappingProtocol<'p> {}
 
 impl<T> PyMappingSetItemProtocolImpl for T
 where
@@ -215,21 +224,25 @@ where
 /// Returns `None` if PyMappingDelItemProtocol isn't implemented, otherwise dispatches to
 /// `DelSetItemDispatch`
 trait DeplItemDipatch {
-    fn mp_del_subscript() -> Option<ffi::objobjargproc> {
+    fn mp_del_subscript() -> Option<ffi::objobjargproc>;
+}
+
+impl<'p, T> DeplItemDipatch for T where T: PyMappingProtocol<'p> {
+    default fn mp_del_subscript() -> Option<ffi::objobjargproc> {
         None
     }
 }
 
-impl<'p, T> DeplItemDipatch for T where T: PyMappingProtocol<'p> {}
-
 /// Returns `py_func_set_del` if PyMappingSetItemProtocol is implemented, otherwise `py_func_del`
 trait DelSetItemDispatch: Sized + for<'p> PyMappingDelItemProtocol<'p> {
-    fn det_set_dispatch() -> Option<ffi::objobjargproc> {
+    fn det_set_dispatch() -> Option<ffi::objobjargproc>;
+}
+
+impl<T> DelSetItemDispatch for T where T: Sized + for<'p> PyMappingDelItemProtocol<'p> {
+    default fn det_set_dispatch() -> Option<ffi::objobjargproc> {
         py_func_del!(PyMappingDelItemProtocol, Self, __delitem__)
     }
 }
-
-impl<T> DelSetItemDispatch for T where T: Sized + for<'p> PyMappingDelItemProtocol<'p> {}
 
 impl<T> DelSetItemDispatch for T
 where

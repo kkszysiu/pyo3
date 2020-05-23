@@ -46,12 +46,14 @@ pub trait PyContextExitProtocol<'p>: PyContextProtocol<'p> {
 
 #[doc(hidden)]
 pub trait PyContextProtocolImpl {
-    fn methods() -> Vec<PyMethodDef> {
+    fn methods() -> Vec<PyMethodDef>;
+}
+
+impl<T> PyContextProtocolImpl for T {
+    default fn methods() -> Vec<PyMethodDef> {
         Vec::new()
     }
 }
-
-impl<T> PyContextProtocolImpl for T {}
 
 impl<'p, T> PyContextProtocolImpl for T
 where

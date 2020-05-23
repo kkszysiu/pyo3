@@ -91,17 +91,21 @@ pub trait PyAsyncAexitProtocol<'p>: PyAsyncProtocol<'p> {
 #[cfg(Py_3)]
 #[doc(hidden)]
 pub trait PyAsyncProtocolImpl {
-    fn tp_as_async() -> Option<ffi::PyAsyncMethods> {
-        None
-    }
+    fn tp_as_async() -> Option<ffi::PyAsyncMethods>;
 
-    fn methods() -> Vec<PyMethodDef> {
-        Vec::new()
-    }
+    fn methods() -> Vec<PyMethodDef>;
 }
 
 #[cfg(Py_3)]
-impl<T> PyAsyncProtocolImpl for T {}
+impl<T> PyAsyncProtocolImpl for T {
+    default fn tp_as_async() -> Option<ffi::PyAsyncMethods> {
+        None
+    }
+
+    default fn methods() -> Vec<PyMethodDef> {
+        Vec::new()
+    }
+}
 
 #[cfg(Py_3)]
 impl<'p, T> PyAsyncProtocolImpl for T
@@ -133,12 +137,14 @@ where
 }
 
 trait PyAsyncAwaitProtocolImpl {
-    fn am_await() -> Option<ffi::unaryfunc> {
+    fn am_await() -> Option<ffi::unaryfunc>;
+}
+
+impl<'p, T> PyAsyncAwaitProtocolImpl for T where T: PyAsyncProtocol<'p> {
+    default fn am_await() -> Option<ffi::unaryfunc> {
         None
     }
 }
-
-impl<'p, T> PyAsyncAwaitProtocolImpl for T where T: PyAsyncProtocol<'p> {}
 
 impl<T> PyAsyncAwaitProtocolImpl for T
 where
@@ -156,12 +162,14 @@ where
 }
 
 trait PyAsyncAiterProtocolImpl {
-    fn am_aiter() -> Option<ffi::unaryfunc> {
+    fn am_aiter() -> Option<ffi::unaryfunc>;
+}
+
+impl<'p, T> PyAsyncAiterProtocolImpl for T where T: PyAsyncProtocol<'p> {
+    default fn am_aiter() -> Option<ffi::unaryfunc> {
         None
     }
 }
-
-impl<'p, T> PyAsyncAiterProtocolImpl for T where T: PyAsyncProtocol<'p> {}
 
 impl<T> PyAsyncAiterProtocolImpl for T
 where
@@ -179,12 +187,14 @@ where
 }
 
 trait PyAsyncAnextProtocolImpl {
-    fn am_anext() -> Option<ffi::unaryfunc> {
+    fn am_anext() -> Option<ffi::unaryfunc>;
+}
+
+impl<'p, T> PyAsyncAnextProtocolImpl for T where T: PyAsyncProtocol<'p> {
+    default fn am_anext() -> Option<ffi::unaryfunc> {
         None
     }
 }
-
-impl<'p, T> PyAsyncAnextProtocolImpl for T where T: PyAsyncProtocol<'p> {}
 
 #[cfg(Py_3)]
 mod anext {
