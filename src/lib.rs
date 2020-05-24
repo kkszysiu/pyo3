@@ -116,6 +116,7 @@
 //!     Ok(())
 //! }
 //! ```
+#![allow(warnings)]
 
 pub use crate::class::*;
 pub use crate::conversion::{
