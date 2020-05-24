@@ -1362,13 +1362,13 @@ where
 }
 
 trait PyNumberIOrProtocolImpl {
-    fn nb_inplace_or() -> Option<ffi::binaryfunc> {
-        None
-    }
+    fn nb_inplace_or() -> Option<ffi::binaryfunc>;
 }
 
 impl<'p, T> PyNumberIOrProtocolImpl for T where T: PyNumberProtocol<'p> {
-    default fn nb_inplace_or() -> Option<ffi::binaryfunc>;
+    default fn nb_inplace_or() -> Option<ffi::binaryfunc> {
+        None
+    }
 }
 
 impl<T> PyNumberIOrProtocolImpl for T
